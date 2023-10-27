@@ -74,8 +74,6 @@ def main():
         if accuracy > 0.95:
             break
 
-    print('Finished Training')
-
     torch.save(model.state_dict(), './model/mobilenetv2_custom.pth')
 
     # Extract features from the model

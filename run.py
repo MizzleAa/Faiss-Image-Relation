@@ -9,7 +9,6 @@ from torchvision.models import mobilenet_v2
 from PIL import Image
 import matplotlib.pyplot as plt
 
-# 이미지 임베딩 추출
 def extract_embeddings(model, dataloader, device):
     model.eval()
     embeddings = []
@@ -34,28 +33,22 @@ def load_faiss():
     index_file = f'{fvec_file}.{index_type}.index'
     fvecs = np.memmap("./fvec/fvecs.bin", dtype='float32', mode='r').view('float32').reshape(-1, dim)
 
-# Faiss 인덱스 빌드
 def build_faiss_index(embeddings, dimension=128):
     d = embeddings.shape[1]
     index = faiss.IndexFlatL2(d)  # L2 거리 메트릭 사용
     index.add(embeddings)
     return index
 
-# 검색 수행
 def search_faiss_index(query_embedding, index, k=5):
     D, I = index.search(query_embedding, k)
     return D, I
 
-# 모델 불러오기
 def load_model(model, model_path):
     model.load_state_dict(torch.load(model_path))
     return model
 
 def show_image_with_label(image_path, label):
-    # 이미지 불러오기
     image = Image.open(image_path)
-    
-    # 이미지와 라벨 표시
     plt.figure(figsize=(6, 6))
     plt.imshow(image)
     plt.title(f'Label: {label}')
@@ -75,11 +68,10 @@ def show_images_with_labels(image_paths, labels):
     plt.show()
 
 def show_input_and_related_images(input_image_path, related_image_paths, labels,):
-    num_images = len(related_image_paths) + 1  # 입력 이미지와 연관 이미지 수
+    num_images = len(related_image_paths) + 1
 
     fig, axes = plt.subplots(1, num_images, figsize=(15, 3))
 
-    # 입력 이미지 표시
     input_image = Image.open(input_image_path)
     axes[0].imshow(input_image)
     axes[0].set_title('Input Image')
@@ -115,7 +107,6 @@ def main():
     model = load_model(model, model_path)
     model.to(device)
 
-    # 학습된 모델로부터 이미지 임베딩 추출
     test_dataset = ImageFolder(data_dir, transform=data_transforms)
     test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False, num_workers=2)
     test_embeddings, test_labels = extract_embeddings(model, test_loader, device)
@@ -135,11 +126,7 @@ def main():
 
     #####################################################
     # 2. 이미지 불러와서 검색 예제
-    # image_path = './dataset/test_knife.png'  
-    # image_path = './dataset/test_gun.png'     
-    # image_path = './dataset/test_mix.png'     
-    # image_path = './dataset/test_knife_2.png' 
-    image_path = './test/qrcode_30_270_295.png' 
+    image_path = './test/qrcode_30_270_295.png'
 
     # 이미지 불러오기 및 변환
     image = Image.open(image_path).convert('RGB')
