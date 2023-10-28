@@ -45,3 +45,12 @@ pip3 install torch==1.12.1+cu113 torchvision==0.13.1+cu113 torchaudio===0.12.1+c
 ```terminal
 pip install -r requirements.txt
 ```
+
+## Result
+
+![캡처](/README/Figure_1.PNG)
+![캡처](/README/Figure_2.PNG)
+![캡처](/README/Figure_3.PNG)
+![캡처](/README/Figure_4.PNG)
+![캡처](/README/Figure_5.PNG)
+![캡처](/README/Figure_6.PNG)

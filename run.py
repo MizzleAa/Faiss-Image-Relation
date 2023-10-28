@@ -26,14 +26,11 @@ def extract_embeddings(model, dataloader, device):
 
     return embeddings, labels
 
-def load_faiss():
-    dim = 1280
-    fvec_file = 'fvecs.bin'
-    index_type = 'hnsw'
-    index_file = f'{fvec_file}.{index_type}.index'
-    fvecs = np.memmap("./fvec/fvecs.bin", dtype='float32', mode='r').view('float32').reshape(-1, dim)
+def load_faiss(fvecs_path, dim=1280):
+    fvecs = np.memmap(fvecs_path, dtype='float32', mode='r').view('float32').reshape(-1, dim)
+    return fvecs
 
-def build_faiss_index(embeddings, dimension=128):
+def build_faiss_index(embeddings):
     d = embeddings.shape[1]
     index = faiss.IndexFlatL2(d)  # L2 거리 메트릭 사용
     index.add(embeddings)
@@ -87,7 +84,7 @@ def show_input_and_related_images(input_image_path, related_image_paths, labels,
     plt.show()
 
 def main():
-    data_dir = './dataset'
+    data_dir = './dataset/train'
     model_path = './model/mobilenetv2_custom.pth'
 
     input_shape = (224, 224, 3)
@@ -113,6 +110,12 @@ def main():
     # Faiss 인덱스 빌드
     faiss_index = build_faiss_index(test_embeddings)
 
+    # example_search_trained_data(test_embeddings,test_labels, faiss_index)
+    image_path = './dataset/test/qrcode_30_270_295.png'
+
+    example_load_image_data(image_path, input_shape, device, model, faiss_index, test_dataset, test_labels)
+
+def example_search_trained_data(test_embeddings,test_labels, faiss_index):
     #####################################################
     # 1. 특정 이미지에 대한 검색 예제
     query_index = 201  # 검색할 이미지 인덱스
@@ -124,10 +127,10 @@ def main():
     for i in range(len(I[0])):
         print(f"Distance: {D[0][i]}, Image Index: {I[0][i]}, Label: {test_labels[I[0][i]]}")
 
+def example_load_image_data(image_path, input_shape, device, model, faiss_index, test_dataset, test_labels):
     #####################################################
     # 2. 이미지 불러와서 검색 예제
-    image_path = './test/qrcode_30_270_295.png'
-
+    
     # 이미지 불러오기 및 변환
     image = Image.open(image_path).convert('RGB')
     image_transform= transforms.Compose([
@@ -145,9 +148,8 @@ def main():
     # Faiss 인덱스를 사용하여 입력 이미지에 대한 검색
     D, I = search_faiss_index(input_embedding, faiss_index)
     # 가장 가까운 이미지와 거리 출력
-    print("new image")
     # 이미지 파일 경로와 라벨을 저장하는 리스트
-    input_image_path = image_path 
+    input_image_path = image_path
     related_image_paths = []
     image_labels = []
 

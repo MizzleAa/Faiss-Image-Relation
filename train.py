@@ -31,7 +31,7 @@ def main():
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
-    data_dir = './dataset'
+    data_dir = './dataset/train'
     train_dataset = ImageFolder(data_dir, transform=data_transforms)
 
     batch_size = 20
