@@ -48,9 +48,9 @@ pip install -r requirements.txt
 
 ## Result
 
-![capture](README/Figure_1.PNG)
-![capture](README/Figure_2.PNG)
-![capture](README/Figure_3.PNG)
-![capture](README/Figure_4.PNG)
-![capture](README/Figure_5.PNG)
-![capture](README/Figure_6.PNG)
+![capture](README/Figure_1.png)
+![capture](README/Figure_2.png)
+![capture](README/Figure_3.png)
+![capture](README/Figure_4.png)
+![capture](README/Figure_5.png)
+![capture](README/Figure_6.png)
