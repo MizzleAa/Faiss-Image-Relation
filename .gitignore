@@ -3,6 +3,7 @@ dataset/base/*
 dataset/test/*
 dataset/train/*
 model/*
+backup/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
