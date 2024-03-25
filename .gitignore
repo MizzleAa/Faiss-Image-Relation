@@ -1,4 +1,7 @@
 dataset/*
+dataset/base/*
+dataset/test/*
+dataset/train/*
 model/*
 
 # Byte-compiled / optimized / DLL files

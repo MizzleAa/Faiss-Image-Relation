@@ -3,6 +3,7 @@ import torch
 import torch.nn as nn
 import torch.optim as optim
 from torch.optim import lr_scheduler
+from torch.optim.lr_scheduler import ReduceLROnPlateau
 from torchvision import transforms
 from torchvision.datasets import ImageFolder
 from torch.utils.data import DataLoader
@@ -28,13 +29,16 @@ def main():
 
     data_transforms = transforms.Compose([
         transforms.Resize(input_shape[:2]),
+        transforms.RandomHorizontalFlip(),  # 가로방향 뒤집기 추가
+        transforms.RandomRotation(20),      # 최대 20도 회전 추가
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
     data_dir = './dataset/train'
-    train_dataset = ImageFolder(data_dir, transform=data_transforms)
-
+    num_epochs = 100
     batch_size = 20
+
+    train_dataset = ImageFolder(data_dir, transform=data_transforms)
     train_loader = DataLoader(train_dataset, batch_size=batch_size, shuffle=True, num_workers=2)
 
     model = mobilenet_v2(pretrained=False)
@@ -43,10 +47,11 @@ def main():
     model.classifier[1] = nn.Linear(model.last_channel, num_classes)
 
     criterion = nn.CrossEntropyLoss()
-    optimizer = optim.SGD(model.parameters(), lr=0.005, momentum=0.9)
-    scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
+    # optimizer = optim.SGD(model.parameters(), lr=0.001, momentum=0.9)
+    optimizer = optim.Adam(model.parameters(), lr=0.1)
+    # scheduler = lr_scheduler.StepLR(optimizer, step_size=7, gamma=0.1)
+    scheduler = ReduceLROnPlateau(optimizer, mode='max', factor=0.1, patience=10, verbose=True)
 
-    num_epochs = 20
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     model.to(device)
 
@@ -69,7 +74,7 @@ def main():
         print(f'Epoch {epoch + 1}/{num_epochs}, Loss: {running_loss / len(train_loader)}, Accuracy: {accuracy:.2f}%')
 
         # Update the learning rate
-        scheduler.step()
+        scheduler.step(accuracy)
 
         if accuracy > 0.95:
             break

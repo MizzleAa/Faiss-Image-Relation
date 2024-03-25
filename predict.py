@@ -1,3 +1,4 @@
+import os
 import numpy as np
 import faiss
 import torch
@@ -83,19 +84,33 @@ def show_input_and_related_images(input_image_path, related_image_paths, labels,
 
     plt.show()
 
+def get_all_image_paths(root_dir):
+
+    supported_extensions = ['.jpg', '.jpeg', '.png', '.bmp', '.gif']
+    image_paths = []
+
+    for subdir, _, files in os.walk(root_dir):
+        for file in files:
+            if any(file.lower().endswith(ext) for ext in supported_extensions):
+                full_path = os.path.join(subdir, file)
+                image_paths.append(full_path)
+
+    return image_paths
+
 def main():
     data_dir = './dataset/train'
-    model_path = './model/mobilenetv2_custom.pth'
-
+    model_path = './model/xray.pth'
+    image_path = './dataset/test/case6'
     input_shape = (224, 224, 3)
     batch_size = 20
     device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
     data_transforms = transforms.Compose([
         transforms.Resize(input_shape[:2]),
+        transforms.RandomHorizontalFlip(),  # 가로방향 뒤집기 추가
+        # transforms.RandomRotation(20),      # 최대 20도 회전 추가
         transforms.ToTensor(),
         transforms.Normalize(mean=[0.485, 0.456, 0.406], std=[0.229, 0.224, 0.225])
     ])
-
     train_dataset = ImageFolder(data_dir, transform=data_transforms)
 
     model = mobilenet_v2(pretrained=False)
@@ -111,9 +126,10 @@ def main():
     faiss_index = build_faiss_index(test_embeddings)
 
     # example_search_trained_data(test_embeddings,test_labels, faiss_index)
-    image_path = './dataset/test/qrcode_30_270_295.png'
-
-    example_load_image_data(image_path, input_shape, device, model, faiss_index, test_dataset, test_labels)
+    image_paths = get_all_image_paths(image_path)
+    for path in image_paths:
+        print(path)
+        example_load_image_data(path, input_shape, device, model, faiss_index, test_dataset, test_labels)
 
 def example_search_trained_data(test_embeddings,test_labels, faiss_index):
     #####################################################
